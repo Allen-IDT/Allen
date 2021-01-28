@@ -1,18 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>聊天視窗</title>
+    <meta charset=" utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta name="author" content="http://www.softwhy.com/forum.php?mod=viewthread&;tid=11600" />
+    <title>螞蟻部落</title>
+    <style type="text/css">
+        .mouth {
+            font-size: 20px;
+            font-weight: bold;
+            border: 1px solid #F00;
+            display: block;
+            width: 50px;
+            transform: rotate(200deg);
+        }
+    </style>
 </head>
 
 <body>
-    <ul>
-        <li>我之前還把一蘭當早餐吃 非常不優</li>
-        <li>感覺喜歡吃一蘭的都因為日本的關係 哈哈</li>
-        <li>你有特別喜歡吃的?</li>
-    </ul>
+    <div class="example"> <span class="mouth">哈哈</span> </div>
+    <script>
+        // for (var i = 0; i >= 360; i++) {
+        $("#example").css("transform", "rotate", "100deg")
+            // }
+    </script>
 </body>
 
 </html>
