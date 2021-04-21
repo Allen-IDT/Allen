@@ -91,7 +91,7 @@
                 var timeid = '#time' + q;
                 var name = $(url).val();
                 oReq.addEventListener("load", reqListener(oReq, name, url, urlnumber, timeid));
-                oReq.open('GET', name, false);
+                oReq.open('GET', name, true);
                 // oReq.setRequestHeader('Referer', 'http://map.coa.gov.tw/')
                 timenow = new Date();
                 oReq.send();
