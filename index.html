@@ -1,29 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset=" utf-8">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <meta name="author" content="http://www.softwhy.com/forum.php?mod=viewthread&;tid=11600" />
-    <title>螞蟻部落</title>
-    <style type="text/css">
-        .mouth {
-            font-size: 20px;
-            font-weight: bold;
-            border: 1px solid #F00;
-            display: block;
-            width: 50px;
-            transform: rotate(200deg);
-        }
-    </style>
 </head>
 
 <body>
-    <div class="example"> <span class="mouth">哈哈</span> </div>
+    <div id="a"></div>
+    </div>
+    <div>
+        <button style="font-size: x-large; margin-top: 2%; " onclick="addmyfunction() ">偵測網址狀態請點擊我</button>
+        <button style="font-size: x-large; margin-left: 1%; " onclick="addurl()" id="a">&#8862</button>
+        <button style="font-size: x-large; margin-left: 1%; ">&#8863</button>
+    </div>
     <script>
-        // for (var i = 0; i >= 360; i++) {
-        $("#example").css("transform", "rotate", "100deg")
-            // }
+        var timenow;
+        var service;
+        var ye = 0;
+        const servicetime = [];
+        //coagis[0]:token
+        //newmap.coa.gov.tw[1]:token
+        //
+        var servicetoken = ['d3FZtN1_euGDmi6FQEaslAlK9hEu_PAWPSf0eZYLbRZQ1_OH5k6lX8t2Rv1gEP9v', 'xF5hurOe-rAspz3YpQ9WFjDkCmgV9wlXHx5yWwmkKgIcsRz3X3eeehZ8yjq9qcCr'];
+
+
+        //地籍定位[0]
+        //地址定位[1]
+        //街景[2]
+        //地籍圖[3]
+        var runurl = ["https://coagis.colife.org.tw/arcgis/rest/services/CadastralMap/SOE/MapServer/exts/CoaRESTSOE/LandAddressToLocation_ring?" + "token=" + servicetoken[0] + "&LandAddress=%E8%87%BA%E5%8C%97%E5%B8%82%E4%B8%AD%E6%AD%A3%E5%8D%80%E6%B0%B8%E6%98%8C%E6%AE%B5%E4%B8%80%E5%B0%8F%E6%AE%B5&LandVersion=107Dec&CodeVersion=107Dec&SpatialRefZone=%E6%9C%AC%E5%B3%B6&SpatialRefOutput=4326&f=json",
+            "https://newmap.coa.gov.tw/arcgissec/rest/services/AdminArea/Cities/MapServer/exts/GeoCode_Soe/Geocode?address=%E8%87%BA%E5%8C%97%E5%B8%82%E4%B8%AD%E5%B1%B1%E5%8D%80%E8%A1%8C%E6%94%BF%E9%87%8C%E6%9D%BE%E6%B1%9F%E8%B7%AF469%E5%B7%B74%E8%99%9F&" + "token=" + servicetoken[1] + "&wkid=4326&f=pjson",
+            "https://map.coa.gov.tw/portal/sharing/servers/5bed85496c154ae7b687486c11017ac5/rest/services/CadastralMap/CadastralMap_Tiled_107Dec/MapServer/tile/19/224476/439110",
+            "https://map.coa.gov.tw/server/rest/services/Farmland_survey_%E8%BE%B2%E5%9C%B0%E7%9B%A4%E6%9F%A5108%E7%B8%BD%E8%A6%BD%E5%9C%96/MapServer/0/query?f=json&returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=%7B%22xmin%22%3A13526972.894481093%2C%22ymin%22%3A2879094.07619396%2C%22xmax%22%3A13526976.477466792%2C%22ymax%22%3A2879097.6591796596%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%7D%7D&geometryType=esriGeometryEnvelope&inSR=102100&outFields=%E6%AE%B5%E8%99%9F%2C%E7%B8%A3%E5%B8%82%2C%E9%84%89%E9%8E%AE%2C%E6%A8%99%E6%BA%96%E5%9C%B0%E7%B1%8D%E5%9D%80%2C%E5%9D%B5%E5%A1%8A%E8%99%9F%2C%E4%BD%BF%E7%94%A8%E5%88%86%E5%8D%80%2C%E4%BD%BF%E7%94%A8%E9%A1%9E%E5%88%A5%2CPLN13%2C%E8%AA%AA%E6%98%8E%2COBJECTID&outSR=102100"
+        ];
+        $(document).ready(function(maxid) {
+            if (runurl.length >= 1) {
+                for (var j = 0; j <= runurl.length - 1; j++) {
+                    var a = document.getElementById("a")
+                        // 新增url框
+                    var inputid = 'url' + j;
+                    var parentinput = document.createElement("input");
+                    parentinput.setAttribute("type", "text");
+                    parentinput.setAttribute("id", inputid);
+                    document.getElementById("a").appendChild(parentinput);
+                    var id = document.getElementById(inputid);
+                    $(id).css("margin-top", "2.5%")
+                    $(id).css("width", "100%")
+                        // 新增url-狀態
+                    var urlnumberid = 'urlnumber' + j;
+                    var urlnumberdiv = document.createElement("div")
+                    urlnumberdiv.setAttribute("id", urlnumberid)
+                    urlnumberdiv.setAttribute("type", 'text')
+                    document.getElementById("a").appendChild(urlnumberdiv)
+                        //新增time
+                        //新增回應時間
+                    var time = 'time' + j;
+                    var timediv = document.createElement("div")
+                    timediv.setAttribute("id", time)
+                    timediv.setAttribute("type", 'text')
+                    document.getElementById("a").appendChild(timediv)
+
+                    var id = "#url" + [j];
+                    $(id).val(runurl[j]);
+                }
+            }
+        });
+
+        // function addmyfunction() {
+        //     for (var q = 0; q <= runurl.length - 1; q++) {
+        //         var oReq = new XMLHttpRequest();
+        //         var url = '#url' + q;
+        //         var urlnumber = '#urlnumber' + q;
+        //         var timeid = '#time' + q;
+        //         var name = $(url).val();
+        //         oReq.addEventListener("load", reqListener(oReq, name, url, urlnumber, timeid));
+        //         oReq.open('GET', name, false);
+        //         timenow = new Date();
+        //         oReq.send();
+        //     }
+        // };
+        function addmyfunction() {
+            for (var q = 0; q <= runurl.length - 1; q++) {
+                var oReq = new XMLHttpRequest();
+                var url = '#url' + q;
+                var urlnumber = '#urlnumber' + q;
+                var timeid = '#time' + q;
+                var name = $(url).val();
+                oReq.addEventListener("load", reqListener(oReq, name, url, urlnumber, timeid));
+                oReq.open('GET', name, false);
+                // oReq.setRequestHeader('Referer', 'http://map.coa.gov.tw/')
+                timenow = new Date();
+                oReq.send();
+            }
+        };
+
+        function reqListener(oReq, name, url, urlnumber, timeid) {
+            if (name) {
+                oReq.onload = function() {
+                    if (oReq.response.split(/[^a-zA-Z-]+/g)[1] != "error") {
+                        if (oReq.status >= 200 && oReq.status < 400) {
+                            //回應時間
+                            var timenew = new Date();
+                            if (timenow.getSeconds() == timenew.getSeconds()) {
+                                service = timenew.getMilliseconds() - timenow.getMilliseconds();
+                                servicefunction(service)
+                                service = "回應時間 : " + service + "毫秒";
+                                $(timeid).text(service);
+                            } else if (timenow.getSeconds() != timenew.getSeconds()) {
+                                service = timenew.getSeconds() - timenow.getSeconds()
+                                service = "回應時間 : " + service + "秒";
+                                $(timeid).text(service);
+                            } else if (timenew.getSeconds == 3) {
+                                $(timeid).text("timeout");
+                            }
+                            //
+                            $(urlnumber).text(oReq.status)
+                            $(url).css("background-color", "#33FF33");
+                        }
+                    } else {
+                        alert("error")
+                    }
+                }
+                oReq.onerror = function() {
+                    console.log('error');
+                    $(url).css("background-color", "red");
+                    $(urlnumber).text(oReq.status)
+                }
+            }
+        }
+        //
+        function servicefunction(service) {
+            servicetime[ye] = service;
+            ye++;
+        }
     </script>
 </body>
 
