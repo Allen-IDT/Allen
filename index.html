@@ -10,12 +10,14 @@
 </head>
 
 <body>
-    <div id="a"></div>
+    <div id="a">
+        <!-- <textarea name="" id="" cols="200" rows="5"></textarea> -->
+    </div>
     </div>
     <div>
-        <button style="font-size: x-large; margin-top: 2%; " onclick="addmyfunction() ">偵測網址狀態請點擊我</button>
-        <button style="font-size: x-large; margin-left: 1%; " onclick="addurl()" id="a">&#8862</button>
-        <button style="font-size: x-large; margin-left: 1%; ">&#8863</button>
+        <button style="font-size: x-large; margin-top: 2%; " onclick="addmyfunction()" id="addmyfunction">偵測網址狀態請點擊我</button>
+        <button style="font-size: x-large; margin-left: 1%; " onclick="clean()" id="clean">清除紀錄</button>
+        <!-- <button style="font-size: x-large; margin-left: 1%; ">&#8863</button> -->
     </div>
     <script>
         var timenow;
@@ -24,14 +26,9 @@
         const servicetime = [];
         //coagis[0]:token
         //newmap.coa.gov.tw[1]:token
-        //
-        var servicetoken = ['d3FZtN1_euGDmi6FQEaslAlK9hEu_PAWPSf0eZYLbRZQ1_OH5k6lX8t2Rv1gEP9v', 'xF5hurOe-rAspz3YpQ9WFjDkCmgV9wlXHx5yWwmkKgIcsRz3X3eeehZ8yjq9qcCr'];
+        var servicetoken = ['lJxGdV_CZM3IAy-2D7akBNzhl3R8VYXd8dRj1a2fAssFgPd7iwhYbrh3ASAdQHUX', 'xF5hurOe-rAspz3YpQ9WFjDkCmgV9wlXHx5yWwmkKgIcsRz3X3eeehZ8yjq9qcCr'];
 
-
-        //地籍定位[0]
-        //地址定位[1]
-        //街景[2]
-        //地籍圖[3]
+        var servicename = ['地籍定位', '地址定位', '街景功能', '地籍圖服務']
         var runurl = ["https://coagis.colife.org.tw/arcgis/rest/services/CadastralMap/SOE/MapServer/exts/CoaRESTSOE/LandAddressToLocation_ring?" + "token=" + servicetoken[0] + "&LandAddress=%E8%87%BA%E5%8C%97%E5%B8%82%E4%B8%AD%E6%AD%A3%E5%8D%80%E6%B0%B8%E6%98%8C%E6%AE%B5%E4%B8%80%E5%B0%8F%E6%AE%B5&LandVersion=107Dec&CodeVersion=107Dec&SpatialRefZone=%E6%9C%AC%E5%B3%B6&SpatialRefOutput=4326&f=json",
             "https://newmap.coa.gov.tw/arcgissec/rest/services/AdminArea/Cities/MapServer/exts/GeoCode_Soe/Geocode?address=%E8%87%BA%E5%8C%97%E5%B8%82%E4%B8%AD%E5%B1%B1%E5%8D%80%E8%A1%8C%E6%94%BF%E9%87%8C%E6%9D%BE%E6%B1%9F%E8%B7%AF469%E5%B7%B74%E8%99%9F&" + "token=" + servicetoken[1] + "&wkid=4326&f=pjson",
             "https://map.coa.gov.tw/portal/sharing/servers/5bed85496c154ae7b687486c11017ac5/rest/services/CadastralMap/CadastralMap_Tiled_107Dec/MapServer/tile/19/224476/439110",
@@ -40,16 +37,25 @@
         $(document).ready(function(maxid) {
             if (runurl.length >= 1) {
                 for (var j = 0; j <= runurl.length - 1; j++) {
-                    var a = document.getElementById("a")
+                    var a = document.getElementById("a");
+                    //url 名稱
+                    var servicenamediv = document.createElement("div");
+                    var servicenameid = '#servicenameid' + j;
+                    servicenamediv.setAttribute("type", "text");
+                    servicenamediv.setAttribute("id", servicenameid);
+                    document.getElementById("a").appendChild(servicenamediv);
+                    var servicenameid = document.getElementById(servicenameid);
+                    $(servicenameid).text(servicename[j])
                         // 新增url框
                     var inputid = 'url' + j;
-                    var parentinput = document.createElement("input");
+                    var parentinput = document.createElement("textarea");
                     parentinput.setAttribute("type", "text");
+                    parentinput.setAttribute("cols", "200");
+                    parentinput.setAttribute("rows", "4");
                     parentinput.setAttribute("id", inputid);
                     document.getElementById("a").appendChild(parentinput);
                     var id = document.getElementById(inputid);
-                    $(id).css("margin-top", "2.5%")
-                    $(id).css("width", "100%")
+                    $(id).css("margin-bottom", "0.5%")
                         // 新增url-狀態
                     var urlnumberid = 'urlnumber' + j;
                     var urlnumberdiv = document.createElement("div")
@@ -66,24 +72,13 @@
 
                     var id = "#url" + [j];
                     $(id).val(runurl[j]);
+
                 }
             }
         });
 
-        // function addmyfunction() {
-        //     for (var q = 0; q <= runurl.length - 1; q++) {
-        //         var oReq = new XMLHttpRequest();
-        //         var url = '#url' + q;
-        //         var urlnumber = '#urlnumber' + q;
-        //         var timeid = '#time' + q;
-        //         var name = $(url).val();
-        //         oReq.addEventListener("load", reqListener(oReq, name, url, urlnumber, timeid));
-        //         oReq.open('GET', name, false);
-        //         timenow = new Date();
-        //         oReq.send();
-        //     }
-        // };
         function addmyfunction() {
+            $("#addmyfunction").css("display", "none")
             for (var q = 0; q <= runurl.length - 1; q++) {
                 var oReq = new XMLHttpRequest();
                 var url = '#url' + q;
@@ -101,34 +96,41 @@
         function reqListener(oReq, name, url, urlnumber, timeid) {
             if (name) {
                 oReq.onload = function() {
-                    if (oReq.response.split(/[^a-zA-Z-]+/g)[1] != "error") {
+                    if (oReq.response.split(/[^a-zA-Z-]+/g)[1] != "error" && oReq.response.split(/[^a-zA-Z-]+/g)[1] != "") {
                         if (oReq.status >= 200 && oReq.status < 400) {
                             //回應時間
                             var timenew = new Date();
+                            //毫秒顯示
                             if (timenow.getSeconds() == timenew.getSeconds()) {
                                 service = timenew.getMilliseconds() - timenow.getMilliseconds();
                                 servicefunction(service)
                                 service = "回應時間 : " + service + "毫秒";
                                 $(timeid).text(service);
-                            } else if (timenow.getSeconds() != timenew.getSeconds()) {
+                            }
+                            //秒顯示
+                            else if (timenow.getSeconds() != timenew.getSeconds()) {
                                 service = timenew.getSeconds() - timenow.getSeconds()
                                 service = "回應時間 : " + service + "秒";
                                 $(timeid).text(service);
-                            } else if (timenew.getSeconds == 3) {
+                            }
+                            //超過3分鐘顯示 
+                            else if (timenew.getSeconds == 3) {
                                 $(timeid).text("timeout");
+                                alert("timeout")
                             }
                             //
                             $(urlnumber).text(oReq.status)
                             $(url).css("background-color", "#33FF33");
+                            $(timeid).css("margin-bottom", "1.5%");
                         }
                     } else {
-                        alert("error")
+                        $(url).css("background-color", "red");
+                        $(urlnumber).text(oReq.response)
                     }
                 }
                 oReq.onerror = function() {
-                    console.log('error');
                     $(url).css("background-color", "red");
-                    $(urlnumber).text(oReq.status)
+                    $(urlnumber).text(oReq.response)
                 }
             }
         }
@@ -136,6 +138,15 @@
         function servicefunction(service) {
             servicetime[ye] = service;
             ye++;
+        }
+
+        function clean() {
+            $("#addmyfunction").css("display", "");
+            for (var n = 0; n <= $("#a textarea").length - 1; n++) {
+                $("#urlnumber" + [n]).text("");
+                $("#time" + [n]).text("");
+                $("#url" + [n]).css("background-color", "");
+            }
         }
     </script>
 </body>
