@@ -1,0 +1,23 @@
+.colora {
+    color: #73b2ff;
+    font-size: 14px;
+    text-decoration: none;
+    /* text-decoration: underline; */
+}
+
+.a {
+    float: left;
+    width: 50%;
+    word-wrap: break-word;
+
+    line-height: 40px;
+    border: 1px #00598e solid;
+}
+
+.b {
+    padding: 3.9% 11%;
+    border: 1px #00598e solid;
+    background-color: #00598e;
+    width: 50%;
+    height: 40%;
+}
