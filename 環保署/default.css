@@ -675,7 +675,8 @@ ul.contact li a.icon-rss:before {
 .column1,
 .column2 {
     float: left;
-    margin-right: 30px;
+    margin-right: 3%;
+    padding-top: 3%;
 }
 
 .column3 {
