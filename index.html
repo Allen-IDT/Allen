@@ -10,42 +10,102 @@
 </head>
 
 <body>
-    <div id="a">
-        <!-- <textarea name="" id="" cols="200" rows="5"></textarea> -->
-    </div>
+    <div id="a" style="width: 70%; position: absolute;">
+
     </div>
     <div>
-        <button style="font-size: x-large; margin-top: 2%; " onclick="addmyfunction()" id="addmyfunction">偵測網址狀態請點擊我</button>
-        <button style="font-size: x-large; margin-left: 1%; " onclick="clean()" id="clean">清除紀錄</button>
-        <!-- <button style="font-size: x-large; margin-left: 1%; ">&#8863</button> -->
+        <div style="width: 20%;float: right; position: initial;">
+            <h1 style="font-size: x-large; text-align: center ;">功能區</h1>
+            <div>1. 偵測URL狀態</div>
+            <br>
+            <div>說明功能:</div>
+            <ul>
+                <li>偵測狀態:掃左邊所有網址回應狀態 <br> 綠色=OK 紅色=NO</li>
+                <li>清除紀錄:掃完後如果需要重新偵測，要先清除左邊偵測資訊，再按偵測狀態按鈕</li>
+            </ul>
+            <div>
+                <button style="font-size: x-large; margin-top: 2%; " onclick="addmyfunction()" id="addmyfunction">偵測狀態</button>
+                <button style="font-size: x-large; margin-left: 1%; " onclick="clean()" id="clean">清除紀錄</button>
+            </div>
+            <br>
+            <div>
+                <div>2. 塞選項目</div>
+                <br>
+                <div>說明功能:</div>
+                <ul>
+                    <li>顯示紅色:偵測完後，顯示出左邊有紅色問題回應的網址</li>
+                </ul>
+                <button style="font-size: x-large; margin-top: 2%;" onclick="filterfunction()">顯示紅色</button>
+                <div id="rednumber">
+
+                </div>
+            </div>
+            <br>
+            <!-- <div>3. 一動位置</div>
+            <input type="text" id="number">
+            <a><button style="font-size: x-large; margin-top: 2%;" id="search">移動指定位置</button></a> -->
+        </div>
     </div>
+
+
     <script>
+        //產出token
+        $(document).ready(function() {
+                $.ajax({
+                    method: "POST",
+                    url: "https://gis.forest.gov.tw/arcgis/tokens/",
+                    data: {
+                        username: "siteadmin",
+                        password: "Aej03xu3m06",
+                        f: "json"
+                    },
+                    dataType: "json",
+                    success: function(token) {
+                        jsonfunction(token)
+                    },
+                    error: function(error) {
+                        console.log(error)
+                    }
+                })
+            })
+            //讀取json檔
+        function jsonfunction(token) {
+            $.ajax({
+                type: "GET",
+                url: "./url.json",
+                dataType: "json",
+                // async: false,
+                success: function(max) {
+                    for (var i = 0; i <= max.url.length - 1; i++) {
+                        max.url[i] = max.url[i] + "?token=" + token.token
+                    }
+                    firstrfunction(max)
+                },
+                error: function(error) {
+                    console.error(" 讀檔案錯誤 ")
+                }
+            })
+        }
         var timenow;
         var service;
         var ye = 0;
         const servicetime = [];
-        //coagis[0]:token
-        //newmap.coa.gov.tw[1]:token
-        var servicetoken = ['Yl4BB9WXp68iEcdQTPSx7-69vwSUWT1ih7YNP37AvAMZNzFinq-kY-IkW81moUaj', 'Yl4BB9WXp68iEcdQTPSx75UDqroFuYOUebRFfwi9znlPYyUQ_0_5NEsCWIAd0vfW'];
 
-        var servicename = ['地籍定位', '地址定位', '街景功能', '地籍圖服務']
-        var runurl = ["https://coagis.colife.org.tw/arcgis/rest/services/CadastralMap/SOE/MapServer/exts/CoaRESTSOE/LandAddressToLocation_ring?" + "token=" + servicetoken[0] + "&LandAddress=%E8%87%BA%E5%8C%97%E5%B8%82%E4%B8%AD%E6%AD%A3%E5%8D%80%E6%B0%B8%E6%98%8C%E6%AE%B5%E4%B8%80%E5%B0%8F%E6%AE%B5&LandVersion=107Dec&CodeVersion=107Dec&SpatialRefZone=%E6%9C%AC%E5%B3%B6&SpatialRefOutput=4326&f=json",
-            "https://newmap.coa.gov.tw/arcgissec/rest/services/AdminArea/Cities/MapServer/exts/GeoCode_Soe/Geocode?address=%E8%87%BA%E5%8C%97%E5%B8%82%E4%B8%AD%E5%B1%B1%E5%8D%80%E8%A1%8C%E6%94%BF%E9%87%8C%E6%9D%BE%E6%B1%9F%E8%B7%AF469%E5%B7%B74%E8%99%9F&" + "token=" + servicetoken[1] + "&wkid=4326&f=pjson",
-            "https://map.coa.gov.tw/portal/sharing/servers/5bed85496c154ae7b687486c11017ac5/rest/services/CadastralMap/CadastralMap_Tiled_107Dec/MapServer/tile/19/224476/439110",
-            "https://map.coa.gov.tw/server/rest/services/Farmland_survey_%E8%BE%B2%E5%9C%B0%E7%9B%A4%E6%9F%A5108%E7%B8%BD%E8%A6%BD%E5%9C%96/MapServer/0/query?f=json&returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=%7B%22xmin%22%3A13526972.894481093%2C%22ymin%22%3A2879094.07619396%2C%22xmax%22%3A13526976.477466792%2C%22ymax%22%3A2879097.6591796596%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%7D%7D&geometryType=esriGeometryEnvelope&inSR=102100&outFields=%E6%AE%B5%E8%99%9F%2C%E7%B8%A3%E5%B8%82%2C%E9%84%89%E9%8E%AE%2C%E6%A8%99%E6%BA%96%E5%9C%B0%E7%B1%8D%E5%9D%80%2C%E5%9D%B5%E5%A1%8A%E8%99%9F%2C%E4%BD%BF%E7%94%A8%E5%88%86%E5%8D%80%2C%E4%BD%BF%E7%94%A8%E9%A1%9E%E5%88%A5%2CPLN13%2C%E8%AA%AA%E6%98%8E%2COBJECTID&outSR=102100"
-        ];
-        $(document).ready(function(maxid) {
-            if (runurl.length >= 1) {
-                for (var j = 0; j <= runurl.length - 1; j++) {
+
+        function firstrfunction(max) {
+            runurl = max
+            if (runurl.url.length >= 1) {
+                for (var j = 0; j <= runurl.url.length - 1; j++) {
                     var a = document.getElementById("a");
                     //url 名稱
                     var servicenamediv = document.createElement("div");
-                    var servicenameid = '#servicenameid' + j;
+                    var servicenameid = 'servicenameid' + j;
                     servicenamediv.setAttribute("type", "text");
                     servicenamediv.setAttribute("id", servicenameid);
                     document.getElementById("a").appendChild(servicenamediv);
                     var servicenameid = document.getElementById(servicenameid);
-                    $(servicenameid).text(servicename[j])
+                    $(servicenameid).text("第" + j)
+                    $(servicenameid).css("width", "50%")
                         // 新增url框
                     var inputid = 'url' + j;
                     var parentinput = document.createElement("textarea");
@@ -56,7 +116,9 @@
                     document.getElementById("a").appendChild(parentinput);
                     var id = document.getElementById(inputid);
                     $(id).css("margin-bottom", "0.5%")
-                        // 新增url-狀態
+                    $(id).css("width", "90%")
+
+                    // 新增url-狀態
                     var urlnumberid = 'urlnumber' + j;
                     var urlnumberdiv = document.createElement("div")
                     urlnumberdiv.setAttribute("id", urlnumberid)
@@ -71,15 +133,16 @@
                     document.getElementById("a").appendChild(timediv)
 
                     var id = "#url" + [j];
-                    $(id).val(runurl[j]);
+                    $(id).val(runurl.url[j]);
 
                 }
             }
-        });
+        }
+
 
         function addmyfunction() {
             $("#addmyfunction").css("display", "none")
-            for (var q = 0; q <= runurl.length - 1; q++) {
+            for (var q = 0; q <= runurl.url.length - 1; q++) {
                 var oReq = new XMLHttpRequest();
                 var url = '#url' + q;
                 var urlnumber = '#urlnumber' + q;
@@ -96,9 +159,10 @@
         function reqListener(oReq, name, url, urlnumber, timeid) {
             if (name) {
                 oReq.onload = function() {
-                    if (oReq.response.split(/[^a-zA-Z-]+/g)[1] != "error" && oReq.response.split(/[^a-zA-Z-]+/g)[1] != "") {
+                    if (oReq.response.split(/[^a-zA-Z-]+/g)[1] != "error " && oReq.response.split(/[^a-zA-Z-]+/g)[1] != " ") {
                         if (oReq.status >= 200 && oReq.status < 400) {
-                            //回應時間
+                            console.log(oReq.status)
+                                //回應時間
                             var timenew = new Date();
                             //毫秒顯示
                             if (timenow.getSeconds() == timenew.getSeconds()) {
@@ -110,7 +174,7 @@
                             //秒顯示
                             else if (timenow.getSeconds() != timenew.getSeconds()) {
                                 service = timenew.getSeconds() - timenow.getSeconds()
-                                service = "回應時間 : " + service + "秒";
+                                service = "回應時間 : " + service + "秒 ";
                                 $(timeid).text(service);
                             }
                             //超過3分鐘顯示 
@@ -143,11 +207,39 @@
         function clean() {
             $("#addmyfunction").css("display", "");
             for (var n = 0; n <= $("#a textarea").length - 1; n++) {
-                $("#urlnumber" + [n]).text("");
-                $("#time" + [n]).text("");
-                $("#url" + [n]).css("background-color", "");
+                $("#urlnumber" + n).text(" ");
+                $("#time" + n).text(" ");
+                $("#url" + n).css("backgroundColor", "");
             }
         }
+
+        //移動到紅色位置
+        function filterfunction() {
+            var filterlength = document.getElementsByTagName("textarea").length
+            for (var i = 0; i <= filterlength - 1; i++) {
+                if ($("#url" + i).css("backgroundColor") == "rgb(51, 255, 51)" || $("#url" + i).css("backgroundColor") == "rgb(255, 255, 255)") {
+
+                } else {
+                    var filteroption = document.getElementById("rednumber");
+                    var filterid = "aim" + i;
+                    var filter_a = document.createElement("a");
+                    filter_a.setAttribute('id', filterid)
+                    filter_a.setAttribute('href', '#url' + i);
+                    filteroption.appendChild(filter_a);
+                    $("#aim" + i).html("第" + i);
+                    $("#aim" + i).css("padding-right", "10%")
+                }
+            }
+        }
+
+        // //移動指定位置(填寫要錨點位)
+        // $("#search").on('click', function() {
+        //     if ($("#number")) {
+
+        //     }else{
+
+        //     }
+        // })
     </script>
 </body>
 
