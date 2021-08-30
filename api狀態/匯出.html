@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <button onclick="myfunction()">123</button>
+    <script>
+        function myfunction() {
+            var xhr = new XMLHttpRequest();
+            var url = 'https://map.coa.gov.tw/farmland/survey.html';
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (this.readyState !== 4) return;
+
+                var iframe = document.createElement('iframe');
+                iframe.srcdoc = this.responseText;
+                iframe.src = url;
+                document.body.appendChild(iframe);
+            };
+            xhr.send();
+        };
+    </script>
+</body>
+
+</html>
