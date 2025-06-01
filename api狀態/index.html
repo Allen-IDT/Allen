@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="text/javascript" src="http://malsup.github.io/jquery.blockUI.js"></script>
+    <link rel="stylesheet" href=".\import.css">
+    <style>
+        
+    </style>
+</head>
+
+<body>
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span id="close" class="close">&times;</span>
+            <p><input type="file" id="filecontent"><button id="">上傳檔案</button></p>
+            <table>
+                <tr id="g"></tr>
+            </table>
+        </div>
+
+    </div>
+
+
+    <div id="a" style="width: 70%; position: absolute;"></div>
+
+    <div style="width: 25%;position: fixed;right: 0;overflow-y: auto;height: 70%;">
+        <h1 style="font-size: x-large; text-align: center;">功能區</h1>
+        <div>1. 檢測地圖服務狀態</div>
+
+        <div>說明功能:</div>
+        <ul>
+            <li>偵測狀態:掃左邊所有網址回應狀態 <br> 綠色=OK 紅色=NO</li>
+            <li>清除紀錄:掃完後如果需要重新偵測，要先清除左邊偵測資訊，再按偵測狀態按鈕</li>
+        </ul>
+        <div>
+            <button style="font-size: x-large; margin-top: 2%; " onclick="addmyfunction()"
+                id="addmyfunction">偵測狀態</button>
+            <button style="font-size: x-large; margin-left: 1%; " onclick="clean()" id="clean">清除紀錄</button>
+        </div>
+        <br>
+        <div>
+            <div>2. 篩選項目</div>
+            <br>
+            <div>說明功能:</div>
+            <ul>
+                <li>偵測完狀態後，選擇要顯示的顏色再按
+                    <p class="fa fa-search"></p>
+                </li>
+            </ul>
+            <select name="" id="filtercolor" style="font-size: x-large;">
+                <option value="">全部</option>
+                <option value="">綠色</option>
+                <option value="">紅色</option>
+                <option value="">橘色</option>
+                <!-- <option value="">綠色</option> -->
+            </select>
+            <button style="font-size: x-large; margin-top: 2%;" onclick="filterfunction()"
+                class="fa fa-search"></button>
+            <div id="rednumber">
+
+            </div>
+
+        </div>
+        <br>
+        <!-- 小視窗token -->
+        ------------------------------------------------------------------
+
+        <button class="buttontoken1" onclick="tokenfunction1() ;">帳密產出token</button>
+        <button class="buttontoken2" onclick="tokenfunction2()">輸入token</button>
+        <div id="login_inputbox1" style="display: none;">
+            <div>
+                <p>請輸入帳號密碼</p>
+                <p>帳號 : <input id="account" type="text"></p>
+                <p>密碼 : <input id="password" type="password"></p>
+            </div>
+            <button id="login1" class="ui-button ui-widget ui-corner-all">確認</button>
+        </div>
+
+        <div style="display: none;" id="login_inputbox2">
+            <br>
+            <input type="text" style="width: 90%;" class="token">
+            <br>
+            <div style="padding-top:3%">
+                <button id="login2" class="ui-button ui-widget ui-corner-all">確認</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        //產出token-div顯示隱藏
+        function tokenfunction1() {
+            if (document.getElementById("login_inputbox1").style.display == 'none') {
+                $("#login_inputbox1").css("display", "")
+            } else if (document.getElementById("login_inputbox1").style.display == '') {
+                $("#login_inputbox1").css("display", "none")
+            }
+        }
+
+        function tokenfunction2() {
+            if (document.getElementById("login_inputbox2").style.display == 'none') {
+                $("#login_inputbox2").css("display", "")
+            } else if (document.getElementById("login_inputbox2").style.display == '') {
+                $("#login_inputbox2").css("display", "none")
+            }
+        }
+        var tokenmax
+        var c = 0;
+        $("#login1").on('click', function () {
+            $.ajax({
+                method: "POST",
+                url: "https://gis.forest.gov.tw/arcgis/tokens/",
+                data: {
+                    username: $("#account").val(),
+                    password: $("#password").val(),
+                    f: "json"
+                },
+                dataType: "json",
+                success: function (token) {
+                    tokenmax = token
+                    for (var i = 0; i <= runurl.url.length - 1; i++) {
+                        $("#url" + i).val(runurl.url[i] + "?token=" + token.token)
+                    }
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            })
+        })
+
+        $("#login2").on('click', function () {
+            for (var i = 0; i <= runurl.url.length - 1; i++) {
+                $("#url" + i).val(runurl.url[i] + "?token=" + $(".token").val())
+            }
+        })
+
+
+
+        //讀取json檔
+        var maxname = []
+        var runurl = []
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "./url.json",
+                dataType: "json",
+                success: function (max) {
+                    for (var i = 0; i <= max.url.length - 1; i++) {
+                        runurl[i] = max.url[i]
+                        //抓服務網址名稱到maxname
+                        maxname[i] = max.url[i].split('services')[1].split('/')[2]
+                    }
+                    firstrfunction(max)
+                },
+                error: function (error) {
+                    console.error(" 讀檔案錯誤 ")
+                }
+            })
+
+
+        })
+
+
+
+        var timenow;
+        var service;
+        var ye = 0;
+        var red = 0, orange = 0, green = 0;
+        const servicetime = [];
+
+        function firstrfunction(max) {
+            runurl = max
+            if (runurl.url.length >= 1) {
+                for (var j = 0; j <= runurl.url.length - 1; j++) {
+                    var a = document.getElementById("a");
+                    //url 名稱
+                    var servicenamediv = document.createElement("div");
+                    var servicenameid = 'servicenameid' + j;
+                    servicenamediv.setAttribute("type", "text");
+                    servicenamediv.setAttribute("id", servicenameid);
+                    document.getElementById("a").appendChild(servicenamediv);
+                    var servicenameid = document.getElementById(servicenameid);
+                    $(servicenameid).text("第" + j + "　　　　　" + "服務名稱：" + maxname[j])
+                    $(servicenameid).css("font-weight", "bolder")
+                    $(servicenameid).css("width", "50%")
+                    // 新增url框
+                    var inputid = 'url' + j;
+                    var parentinput = document.createElement("textarea");
+                    parentinput.setAttribute("type", "text");
+                    parentinput.setAttribute("cols", "200");
+                    parentinput.setAttribute("rows", "4");
+                    parentinput.setAttribute("id", inputid);
+                    document.getElementById("a").appendChild(parentinput);
+                    var id = document.getElementById(inputid);
+                    $(id).css("margin-bottom", "0.5%")
+                    $(id).css("width", "90%")
+
+                    // 新增url-狀態
+                    var urlnumberid = 'urlnumber' + j;
+                    var urlnumberdiv = document.createElement("div")
+                    urlnumberdiv.setAttribute("id", urlnumberid)
+                    urlnumberdiv.setAttribute("type", 'text')
+                    document.getElementById("a").appendChild(urlnumberdiv)
+                    //新增time
+                    //新增回應時間
+                    var time = 'time' + j;
+                    var timediv = document.createElement("div")
+                    timediv.setAttribute("id", time)
+                    timediv.setAttribute("type", 'text')
+                    document.getElementById("a").appendChild(timediv)
+
+                    var id = "#url" + j;
+                    $(id).val(runurl.url[j]);
+
+                }
+            }
+        }
+
+
+        function addmyfunction() {
+            $("#addmyfunction").css("display", "none")
+            for (var q = 0; q <= runurl.url.length - 1; q++) {
+                var oReq = new XMLHttpRequest();
+                var url = '#url' + q;
+                var urlnumber = '#urlnumber' + q;
+                var timeid = '#time' + q;
+                var name = $(url).val();
+                oReq.addEventListener("load", reqListener(oReq, name, url, urlnumber, timeid, q, runurl));
+                oReq.open('GET', name, true);
+                timenow = new Date();
+                oReq.send();
+
+            }
+        };
+
+        function reqListener(oReq, name, url, urlnumber, timeid, q, runurl) {
+            if (name) {
+                oReq.onload = function () {
+                    if (oReq.response.split(/[^a-zA-Z-]+/g)[1] != "error " && oReq.response.split(/[^a-zA-Z-]+/g)[1] != " ") {
+                        if (oReq.status >= 200 && oReq.status < 400) {
+                            console.log(oReq.status)
+                            //回應時間
+                            var timenew = new Date();
+                            //毫秒顯示
+                            if (timenow.getSeconds() == timenew.getSeconds()) {
+                                service = timenew.getMilliseconds() - timenow.getMilliseconds();
+                                servicefunction(service)
+                                service = "回應時間 : " + service + "毫秒";
+                                $(timeid).text(service);
+                            }
+                            //秒顯示
+                            else if (timenow.getSeconds() != timenew.getSeconds()) {
+                                service = timenew.getSeconds() - timenow.getSeconds()
+                                service = "回應時間 : " + service + "秒 ";
+                                $(timeid).text(service);
+                            }
+                            //超過3分鐘顯示 
+                            else if (timenew.getSeconds == 3) {
+                                $(timeid).text("timeout");
+                                alert("timeout")
+                            }
+                            //
+                            ajaxsearch(name, url, timeid, urlnumber, oReq, q, runurl)
+                        }
+                    } else {
+                        $(url).css("background-color", "red");
+                        $(urlnumber).text(oReq.response)
+                        if (q == runurl.url.length - 1) {
+                            cc(q, runurl)
+                        }
+                        red = red + 1
+                        if (red + orange + green == $("textarea").length) {
+                            resultfunction()
+                        }
+
+                    }
+                }
+                oReq.onerror = function () {
+                    $(url).css("background-color", "red");
+                    $(urlnumber).text(oReq.response)
+                    if (q == runurl.url.length - 1) {
+                        cc(q, runurl)
+                    }
+                    red = red + 1
+                    if (red + orange + green == $("textarea").length) {
+                        resultfunction()
+                    }
+                }
+            }
+        }
+        //
+        function servicefunction(service) {
+            servicetime[ye] = service;
+            ye++;
+        }
+
+        function clean() {
+            $("#addmyfunction").css("display", "");
+            for (var n = 0; n <= $("#a textarea").length - 1; n++) {
+                $("#urlnumber" + n).text(" ");
+                $("#time" + n).text(" ");
+                $("#url" + n).css("backgroundColor", "");
+                green = 0;
+                orange = 0;
+                red = 0;
+            }
+        }
+
+        //篩選顏色
+        function filterfunction() {
+            $("#filtercolor option:selected").text()
+            var filterlength = document.getElementsByTagName("textarea").length
+            if ($("#filtercolor option:selected").text() == "綠色") {
+                for (var i = 0; i <= filterlength - 1; i++) {
+                    if ($("#url" + i).css("backgroundColor") == "rgb(51, 255, 51)") {
+                        $("#url" + i).css("display", "")
+                        $("#servicenameid" + i).css("display", "")
+                        $("#urlnumber" + i).css("display", "")
+                        $("#time" + i).css("display", "")
+                    } else {
+                        $("#urlnumber" + i).css("display", "none")
+                        $("#time" + i).css("display", "none")
+                        $("#servicenameid" + i).css("display", "none")
+                        $("#url" + i).css("display", "none")
+                    }
+                }
+            } else if ($("#filtercolor option:selected").text() == "紅色") {
+                for (var i = 0; i <= filterlength - 1; i++) {
+                    if ($("#url" + i).css("backgroundColor") == "rgb(255, 0, 0)") {
+                        $("#url" + i).css("display", "")
+                        $("#servicenameid" + i).css("display", "")
+                        $("#urlnumber" + i).css("display", "")
+                        $("#time" + i).css("display", "")
+                    } else {
+                        $("#urlnumber" + i).css("display", "none")
+                        $("#time" + i).css("display", "none")
+                        $("#servicenameid" + i).css("display", "none")
+                        $("#url" + i).css("display", "none")
+                    }
+                }
+            } else if ($("#filtercolor option:selected").text() == "橘色") {
+                for (var i = 0; i <= filterlength - 1; i++) {
+                    if ($("#url" + i).css("backgroundColor") == "rgb(255, 165, 0)") {
+                        $("#url" + i).css("display", "")
+                        $("#servicenameid" + i).css("display", "")
+                        $("#urlnumber" + i).css("display", "")
+                        $("#time" + i).css("display", "")
+                    } else {
+                        $("#urlnumber" + i).css("display", "none")
+                        $("#time" + i).css("display", "none")
+                        $("#servicenameid" + i).css("display", "none")
+                        $("#url" + i).css("display", "none")
+                    }
+                }
+            } else if ($("#filtercolor option:selected").text() == "全部") {
+                for (var i = 0; i <= filterlength - 1; i++) {
+                    $("#url" + i).css("display", "")
+                    $("#servicenameid" + i).css("display", "")
+                    $("#urlnumber" + i).css("display", "")
+                    $("#time" + i).css("display", "")
+                }
+
+            }
+
+        }
+
+        function ajaxsearch(name, url, timeid, urlnumber, oReq, q, runurl) {
+            $.ajax({
+                url: name,
+                type: "POST",
+                dataType: "html",
+                success: function (urlhtml) {
+                    // q = 124
+                    if (urlhtml.includes("ArcGIS Server REST API Login") == true) {
+                        $(url).css("background-color", "rgb(255, 165, 0)");
+                        $(timeid).css("margin-bottom", "1.5%");
+                        $(urlnumber).text(oReq.status)
+                        orange++
+                        if (red + orange + green == $("textarea").length) {
+                            resultfunction()
+                        }
+                    } else {
+                        $(urlnumber).text(oReq.status)
+                        $(url).css("background-color", "#33FF33");
+                        $(timeid).css("margin-bottom", "1.5%");
+                        green++
+                        if (red + orange + green == $("textarea").length) {
+                            resultfunction()
+                        }
+                    }
+                }
+            })
+        }
+        function resultfunction() {
+            alert("綠色:" + green + " 橘色:" + orange + " 紅色:" + red);
+        }
+
+    </script>
+    <script src=".\import.js"></script>
+</body>
+
+</html>

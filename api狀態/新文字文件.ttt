@@ -1,0 +1,20 @@
+{"products":
+[
+    {
+        "product_id" : "123",
+        "product_data" : {
+            "image_id" : "1234",
+            "text" : "foo",
+            "link" : "bar",
+            "image_url" : "baz"
+        }
+    },{
+        "product_id" : "456",
+        "product_data" : {
+            "image_id" : "1234",
+            "text" : "foo",
+            "link" : "bar",
+            "image_url" : "baz"
+        }
+    }
+]}
